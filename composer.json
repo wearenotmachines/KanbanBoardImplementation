@@ -1,0 +1,13 @@
+{
+	"require": {
+        "guzzlehttp/guzzle": "~5.2"
+    },
+	"autoload" : {
+		"psr-4" : {
+			"WeAreNotMachines\\TogglClient\\" : "vendor/wearenotmachines/togglclient/src",
+			"WeAreNotMachines\\Utilities\\" : "vendor/wearenotmachines/utilities/src",
+			"WeAreNotMachines\\Kanban\\" : "vendor/wearenotmachines/kanban/src"
+		}
+	}
+
+}
