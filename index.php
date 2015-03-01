@@ -37,6 +37,38 @@ $router->add("/active-projects", function() use ($kb) {
 	echo json_encode($output, JSON_PRETTY_PRINT);
 });
 
+$router->add("/project/{:id}", function($id) use ($kb) {
+	$project = $kb->getProject($id);
+	echo $project->toJSON();
+});
+
+$router->add("/project/{:id}/activate", function ($id) use ($kb) {
+	$kb->makeProjectActive($id);
+	$output = [];
+	foreach ($kb->getActiveProjects() AS $project) {
+		$output[] = $project->toArray();
+	}
+	echo json_encode($output, JSON_PRETTY_PRINT);
+	$kb->save();
+});
+
+$router->add("/project/{:id}/deactivate", function($id) use ($kb) {
+	$kb->makeProjectInactive($id);
+	$output = [];
+	foreach ($kb->getActiveProjects() AS $project) {
+		$output[] = $project->toArray();
+	}
+	echo json_encode($output, JSON_PRETTY_PRINT);
+	$kb->save();
+});
+
+$router->add("/project/{:id}/update", function($id) use ($kb) {
+	$updatedProject = $_POST['project'];
+	$kb->updateProject($id, $updatedProject);
+	echo json_encode($kb->getProject($id), JSON_PRETTY_PRINT);
+	$kb->save();
+});
+
 $router->add("/project/{:id}/addSticker", function($id) use ($kb) {
 	$stickerData = $_POST['sticker'];
 	$kb->addStickerToProject(KanbanBoardSticker::fromArray($stickerData), $id);
@@ -51,6 +83,19 @@ $router->add("/project/{:id}/removeSticker", function($id) use ($kb) {
 	$kb->save();
 });
 
+$router->add("/client/{:id}", function($id) use ($kb) {
+	echo $kb->getClient($id)->toJSON();
+});
+
+$router->add("/user/{:identifier}/engaged-in", function($identifier) use ($kb) {
+	$toggl = new TogglClient($kb->getUserApiToken($identifier));
+	$task = $toggl->getCurrentTask();
+	if (isset($task['data']['pid']) && !$kb->isActiveProject($task['data']['pid'])) {
+		$kb->makeProjectActive($task['data']['pid']);
+	}
+	echo json_encode($toggl->getCurrentTask(), JSON_PRETTY_PRINT);
+	$kb->save();
+});
 /**
  * Toggl API lookup methods follow
  */
@@ -76,9 +121,5 @@ $router->add("/toggl-directory", function() use ($kb) {
 
 });
 
-$router->add("/user/{:identifier}/engaged-in", function($identifier) use ($kb) {
-	$toggl = new TogglClient($kb->getUserApiToken($identifier));
-	echo json_encode($toggl->getCurrentTask(), JSON_PRETTY_PRINT);
-});
 
 $router->run();
