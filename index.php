@@ -62,6 +62,21 @@ $router->add("/project/{:id}/deactivate", function($id) use ($kb) {
 	$kb->save();
 });
 
+$router->add("/project/{:id}/add-user/{:userId}", function($id, $userId) use ($kb) {
+	$project = $kb->getProject($id);
+	$project->addUser($userId);
+	$kb->removeUserFromProjectsExcept($userId, $id);
+	echo $project->toJSON();
+	$kb->save();
+});
+
+$router->add("/project/{:id}/remove-user/{:userId}", function($id, $userId) use ($kb) {
+	$project = $kb->getProject($id);
+	$project->removeUser($userId);
+	echo $project->toJSON();
+	$kb->save();
+});
+
 $router->add("/project/{:id}/update", function($id) use ($kb) {
 	$updatedProject = $_POST['project'];
 	$kb->updateProject($id, $updatedProject);
@@ -90,6 +105,11 @@ $router->add("/client/{:id}", function($id) use ($kb) {
 $router->add("/user/{:identifier}/engaged-in", function($identifier) use ($kb) {
 	$toggl = new TogglClient($kb->getUserApiToken($identifier));
 	$task = $toggl->getCurrentTask();
+	$project = $kb->hasProject($task['data']['pid']) ? $kb->getProject($task['data']['pid']) : null;
+	if ($project) {
+		$project->addUser($task['data']['uid']);
+		$kb->removeUserFromProjectsExcept($task['data']['uid'],$task['data']['pid']);
+	}
 	if (isset($task['data']['pid']) && !$kb->isActiveProject($task['data']['pid'])) {
 		$kb->makeProjectActive($task['data']['pid']);
 	}
