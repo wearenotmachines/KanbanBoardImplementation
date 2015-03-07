@@ -69,6 +69,16 @@ data.json is where it all hangs out.
 
 ---
 
+###`GET /project/{:id}/add-user/{:userID}`
+- adds the specified user to the specified project, removing them from all other projects
+- returns a project JSON object
+
+---
+
+###`GET /project/{:id}/remove-user/{:userID}`
+- removes the specified user to the specified project, removing them from all other projects
+- returns a project JSON object
+
 ---
 
 ###`GET /client/{:id}`
@@ -106,7 +116,6 @@ data.json is where it all hangs out.
 }
 ```
 - in addition, if the project that this task belongs to is not active, it is added to the active projects array
-- _todo_ - add the user to the project and remove them from all others
 
 ##Toggl Client data lookup
 The following methods return data directly from Toggl.
@@ -116,7 +125,8 @@ Toggl requires a user api token to authenticate the request and currently this i
 - lists all clients that the authenticating user can see
 
 -`GET /list-users`
-- lists all Toggl users that the authenticating user sharesa workspace with
+- lists all Toggl users that the authenticating user shares a workspace with
+- Toggl uses two IDs for users - an id that is returned by this method and a uid that is used when getting time Toggl'd - you should use the uid to manage users on the board - not the id.  little bit confusing.
 
 -`GET /list-projects`
 - lists all projects in the authenticating user's workspace at Toggl
