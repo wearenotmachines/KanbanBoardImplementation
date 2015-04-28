@@ -16,13 +16,13 @@ $kb = new KanbanBoard("data.json");
 $router = new WeAreNotMachines\Utilities\Router;
 
 $router->add("/", function() use ($kb) {
-	$toggl = new TogglClient($kb->getUserApiToken("alex.callard@itrm.co.uk"));
+	$toggl = new TogglClient($kb->getUserApiToken(""));
 	$kb->setUsers($toggl->getAllUsers());
 	print_r($kb->getUsers());
 });
 
 $router->add("/cache-data", function() use ($kb) {
-	$toggl = new TogglClient("f3862117ce3d14541c6e4ed5a965a80d");
+	$toggl = new TogglClient("");
 	$kb->setUsers($toggl->getAllUsers());
 	$kb->setClients($toggl->getAllClients());
 	$kb->setProjects($toggl->getAllProjects());
